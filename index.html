@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Powered Document Analyzer</title>
+    <title>Legal Agent Review</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            /* Thay đổi màu nền sang màu xanh của PHS */
+            background-color: #0033A0;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            padding: 20px;
         }
         .container { text-align: center; }
         .form-card {
@@ -22,13 +24,14 @@
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            min-width: 400px;
+            max-width: 450px;
+            width: 100%;
         }
-        h1 { font-size: 2.5em; margin-bottom: 10px; }
-        p { font-size: 1.1em; margin-bottom: 30px; color: #eee; }
-        h2 { margin-bottom: 20px; }
+        h1 { font-size: 2.2em; margin-bottom: 10px; }
+        p { font-size: 1.1em; margin-bottom: 30px; }
+        h2 { margin-bottom: 20px; color: #0033A0; }
         input[type="text"], input[type="email"], input[type="file"] {
-            width: calc(100% - 20px);
+            width: calc(100% - 22px);
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
@@ -45,35 +48,83 @@
             padding: 12px;
             border: none;
             border-radius: 6px;
-            background-color: #5a67d8;
-            color: white;
-            font-size: 1em;
+            /* Thay đổi màu nút sang màu vàng của PHS */
+            background-color: #F3D03E;
+            color: #0033A0; /* Chữ màu xanh cho nổi bật */
+            font-size: 1.1em;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.2s ease-in-out;
         }
-        button:hover { background-color: #434190; }
+        button:hover { 
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #error-message {
+            color: #e53e3e; /* Màu đỏ cho cảnh báo */
+            font-weight: bold;
+            margin-bottom: 15px;
+            min-height: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>AI-Powered Document Analyzer</h1>
-        <p>Get smart summaries and legal insights — from PDF to Inbox in seconds.</p>
+        <h1>Legal Agent Review</h1>
+        <p>Phân tích, tóm tắt và đánh giá tài liệu của bạn trong giây lát.</p>
         <div class="form-card">
-            <h2>Complete form with correct details</h2>
-            <form action="https://n8n.phs.vn/webhook/LegalPHS" method="POST" enctype="multipart/form-data">
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" placeholder="Your Name" required>
+            <h2>Hoàn thành thông tin</h2>
+            
+            <div id="error-message"></div>
 
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Your Email" required>
+            <form action="https://n8n.phs.vn/webhook/LegalPHS" method="POST" enctype="multipart/form-data" id="upload-form">
+                <label for="name">Tên của bạn</label>
+                <input type="text" id="name" name="name" placeholder="Ví dụ: Nguyễn Văn A" required>
 
-                <label for="pdf">PDF File</label>
+                <label for="email">Email nhận kết quả</label>
+                <input type="email" id="email" name="email" placeholder="Ví dụ: nguyenvana@email.com" required>
+
+                <label for="pdf">Tài liệu (PDF)</label>
                 <input type="file" id="pdf" name="data" accept=".pdf" required>
-                <small style="display: block; margin-bottom: 15px;">Max file size: 15MB</small>
-
-                <button type="submit">Submit</button>
+                
+                <button type="submit" id="submit-button">Gửi đi phân tích</button>
             </form>
         </div>
     </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const submitButton = document.getElementById('submit-button');
+        const errorMessage = document.getElementById('error-message');
+        const fileInput = document.getElementById('pdf');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            errorMessage.textContent = '';
+            
+            const file = fileInput.files[0];
+
+            if (!file) {
+                errorMessage.textContent = 'Vui lòng chọn một file để tải lên.';
+                return;
+            }
+
+            if (file.type !== 'application/pdf') {
+                errorMessage.textContent = 'Lỗi: Hệ thống chỉ hỗ trợ file PDF.';
+                fileInput.value = ''; // Xóa file đã chọn sai
+                return;
+            }
+
+            submitButton.textContent = 'Đang xử lý...';
+            submitButton.disabled = true;
+            form.submit();
+        });
+    </script>
 </body>
 </html>
